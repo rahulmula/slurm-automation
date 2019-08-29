@@ -1,0 +1,4 @@
+salloc: Pending job allocation 120
+salloc: Job 119 has exceeded its time limit and isalloc: job 120 has been allocated resources
+salloc: Granted job allocation 120
+salloc: Job allocation 120 has been revoked.
