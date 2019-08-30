@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-salloc: Granted job allocation 135
-=======
-salloc: Pending job allocation 120
-salloc: Job 119 has exceeded its time limit and isalloc: job 120 has been allocated resources
-salloc: Granted job allocation 120
-salloc: Job allocation 120 has been revoked.
->>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
+salloc: Pending job allocation 168
+salloc: job 168 queued and waiting for resources
+salloc: job 168 has been allocated resources
+salloc: Granted job allocation 168
+salloc: Relinquishing job allocation 168

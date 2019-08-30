@@ -5,11 +5,12 @@ from subprocess import PIPE, run
 
 gpu_logpath = "/home/taccuser/slurm-automation/out_gpu.log"
 srun_command = "srun -N 1 --gres=gpu:2 hostname"
-autodetect_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
+autodetect_singlenode_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
+autodetect_multinode_command = "salloc -N 2 --gres=gpu:2 --begin=now --time=10"
 sinfo_command = "sinfo -Nl"
 regex=r'^node-name:.*$'
 nodepath = "/home/taccuser/slurm-automation/totalnodes.log"
-
+alloc_regex=r'^salloc:.*$'
 
 num_gpus = 0
 with open(gpu_logpath, "r") as file:
@@ -47,24 +48,38 @@ def slurm_gpudetect():
     var = re.findall(r'node-name:(.*?)(?=\s*,\s*node-name:|$)', file1.read())    
     str1 = ''.join(var)
     if res_out == str1:
-        print("Pass")
+        #print("Pass")
         x.add_row(["Total No.of Gpu vs Slurm No.of Gpu detecting", "Pass"])
-        print(x)
+        #print(x)
     else:               
-        print("Fail")
+        #print("Fail")
         x.add_row(["Total No.of Gpu vs Slurm No.of Gpu detecting", "Fail"])
-        print(x)
+        #print(x)
 
-def slurm_node_allocation():
+def validate_output():
+    print("you have entered")
+    with open("/home/taccuser/slurm-automation/allocation.log", "r") as file:
+        if "error" in file.read():
+            #print('Found keyword')
+            x.add_row(["GPU autodetect single-node allocation", "Fail"])
+            #print(x)
+        else:
+            x.add_row(["GPU autodetect single-node allocation", "Pass"])
+            #print(x)
+                
+
+def slurm_node_allocation(autodetect_command):
     try:
         #res = os.popen("%s >/dev/tty" %autodetect_command).read()
-        res = subprocess.run("%s 2>&1 | tee allocation.log >/dev/tty" %autodetect_command, timeout=5, shell=True)
+        res = subprocess.run("%s 2>&1 | tee allocation.log >/dev/tty" %autodetect_command, timeout=2, shell=True)
         #res = run(autodetect_command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
         #res = subprocess.check_output(srun_command, shell=True).read()
         print(res)
+        validate_output()
     except:
-        pass
+        pass        
         print("Pass")
+        validate_output()
 
 
 def slurm_load_conf(var):
@@ -80,21 +95,32 @@ def slurm_automatic_allocation(n1hostname,n1autoallocation_command):
     #print(res)
     if n1host == res:
         print("Pass")
+        x.add_row(["Auto node allocation", "Pass"])
+        #print(x)
     else:
         print("Fail")
+        x.add_row(["Auto node allocation", "Fail"])
+        #print(x)
 
 def slurm_autonode_allocation():
-    slurm_automatic_allocation("N1hostname","N1_autoallocation")
-    nodeexist = slurm_load_conf("N2hostname")
-    if nodeexist != "None":
-        print("Multi-Node exist!")
-        slurm_automatic_allocation("N2hostname","N2_autoallocation")        
-    else:
-        print("Multi-Node not exist!")
+    try:
+        slurm_automatic_allocation("N1hostname","N1_autoallocation")
+        nodeexist = slurm_load_conf("N2hostname")
+        print(nodeexist)
+    except:
+        pass
+        #print("N2 has error")
+    #if nodeexist != "None":
+    #    print("Multi-Node exist!")
+    #    slurm_automatic_allocation("N2hostname","N2_autoallocation")        
+    #else:
+    #    print("Multi-Node not exist!")
 
-#slurm_gpudetect()
-slurm_gpu_autodetect() 
+slurm_gpudetect()
+slurm_node_allocation(autodetect_singlenode_command)
+#slurm_node_allocation(autodetect_multinode_command)
+#slurm_gpu_autodetect() 
 #slurm_load_conf()
-#slurm_autonode_allocation()
+slurm_autonode_allocation()
+print(x)
 #slurm_group_gpudetection()
-#slurm_node_allocation() 
