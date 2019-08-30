@@ -4,11 +4,7 @@ from subprocess import PIPE, run
 
 
 gpu_logpath = "/home/taccuser/slurm-automation/out_gpu.log"
-<<<<<<< HEAD
 srun_command = "srun -N 1 --gres=gpu:2 hostname"
-=======
-srun_command = "sudo srun -N 1 --gres=gpu:2 hostname"
->>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
 autodetect_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
 sinfo_command = "sinfo -Nl"
 regex=r'^node-name:.*$'
@@ -105,13 +101,8 @@ def slurm_autonode_allocation():
         print("Multi-Node not exist!")
 
 #slurm_gpudetect()
-<<<<<<< HEAD
 slurm_gpu_autodetect() 
 #slurm_load_conf()
 #slurm_autonode_allocation()
 #slurm_group_gpudetection()
-=======
-slurm_node_allocation() 
-#slurm_load_conf()
-#slurm_autonode_allocation()
->>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
+#slurm_node_allocation() 
