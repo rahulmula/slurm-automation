@@ -4,7 +4,11 @@ from subprocess import PIPE, run
 
 
 gpu_logpath = "/home/taccuser/slurm-automation/out_gpu.log"
+<<<<<<< HEAD
 srun_command = "srun -N 1 --gres=gpu:2 hostname"
+=======
+srun_command = "sudo srun -N 1 --gres=gpu:2 hostname"
+>>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
 autodetect_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
 sinfo_command = "sinfo -Nl"
 regex=r'^node-name:.*$'
@@ -55,6 +59,7 @@ def slurm_gpudetect():
         x.add_row(["Total No.of Gpu vs Slurm No.of Gpu detecting", "Fail"])
         print(x)
 
+<<<<<<< HEAD
 def slurm_gpu_autodetect():
     try:
         #res = os.popen("%s >/dev/tty" %autodetect_command).read()
@@ -65,6 +70,14 @@ def slurm_gpu_autodetect():
     except:
         pass
         print("Pass")
+=======
+def slurm_node_allocation():
+    #res = os.popen("%s >/dev/tty" %autodetect_command).read()
+    res = subprocess.run("%s 2>&1 | tee allocation.log >/dev/tty" %autodetect_command, timeout=10, shell=True)
+    #res = subprocess.check_output("%s 2>&1 | tee allocation.log >/dev/tty" %autodetect_command, shell=True).read()
+    #res = os.popen("exit()").read()
+    print(res)
+>>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
 
 def slurm_load_conf(var):
     config = json.loads(open('/home/taccuser/slurm-automation/conf.json').read())
@@ -92,7 +105,13 @@ def slurm_autonode_allocation():
         print("Multi-Node not exist!")
 
 #slurm_gpudetect()
+<<<<<<< HEAD
 slurm_gpu_autodetect() 
 #slurm_load_conf()
 #slurm_autonode_allocation()
 #slurm_group_gpudetection()
+=======
+slurm_node_allocation() 
+#slurm_load_conf()
+#slurm_autonode_allocation()
+>>>>>>> 4fec9abfcac9f1500d857675d02f159fe7258dc7
