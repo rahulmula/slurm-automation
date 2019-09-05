@@ -1,30 +1,30 @@
-from prettytable import PrettyTable
 import os, sys, re, itertools, subprocess, json
 from subprocess import PIPE, run
-
+from prettytable import PrettyTable
 
 gpu_logpath = "/home/taccuser/slurm-automation/out_gpu.log"
 conf_path="/home/taccuser/slurm-automation/conf.json"
-srun_command = "srun -N 1 --gres=gpu:2 hostname"
+srun_command = "sudo srun -N 1 --gres=gpu:2 hostname"
 autodetect_singlenode_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
 autodetect_multinode_command = "salloc -N 2 --gres=gpu:2 --begin=now --time=10"
 sinfo_command = "sinfo -Nl"
 regex=r'^node-name:.*$'
 nodepath = "/home/taccuser/slurm-automation/totalnodes.log"
-alloc_regex=r'^salloc:.*$'
-cancel_regex=r'.*?Granted.*$'
-
-
-num_gpus = 0
-with open(gpu_logpath, "r") as file:
-    for line in file:
-        num_gpus += 1
-print("Number of GPUs:")
-print(num_gpus)
-
-
+node_allocation_regex=r'^salloc:.*$'
+node_cancel_regex=r'.*?Granted.*$'
 x = PrettyTable()
 x.field_names = ["Slurm Test Scenarious","Result"]
+
+
+
+def total_gpu():
+    num_gpus = 0
+    with open(gpu_logpath, "r") as file:
+        for line in file:
+            num_gpus += 1
+    print("Number of GPUs:")
+    print(num_gpus)
+
 
 def cmdline(command):
     process = Popen(args=command, stdout=PIPE, shell=True)
@@ -33,8 +33,7 @@ def cmdline(command):
 def slurm_group_gpudetection():          
     with open(nodepath, "r") as file:
         for line in file:
-            if "debug*" in line:
-               print('Found keyword')
+            if "debug*" in line:                   
                print(line)
                str = line.split(" ")
                print(str[0])
@@ -54,7 +53,7 @@ def slurm_gpudetect():
 def cancel_allocation():
     with open("/home/taccuser/slurm-automation/allocation.log", "r") as file:
         for line in file:
-            for match in re.finditer(cancel_regex, line, re.S):
+            for match in re.finditer(node_cancel_regex, line, re.S):
                 str = match.group().split(" ")
                 str.reverse()
                 print(str[0])
@@ -120,11 +119,6 @@ def slurm_autonode_allocation():
 slurm_gpudetect()
 slurm_node_allocation(autodetect_singlenode_command)
 cancel_allocation()
-
-#slurm_node_allocation(autodetect_multinode_command)
-#slurm_gpu_autodetect() 
-#slurm_load_conf()
-
 slurm_autonode_allocation()
 print(x)
 #slurm_group_gpudetection()
