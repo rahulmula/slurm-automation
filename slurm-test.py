@@ -25,6 +25,8 @@ def total_gpu():
     print("Number of GPUs:")
     print(num_gpus)
 
+def slurm_verify_rocmcomponent():
+
 
 def cmdline(command):
     process = Popen(args=command, stdout=PIPE, shell=True)
