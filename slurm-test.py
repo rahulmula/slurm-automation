@@ -2,15 +2,9 @@ import os, sys, re, itertools, subprocess, json
 from subprocess import PIPE, run
 from prettytable import PrettyTable
 
-gpu_logpath = "/home/taccuser/slurm-automation/out_gpu.log"
+
 conf_path="/home/taccuser/slurm-automation/conf.json"
-srun_command = "srun -N 1 --gres=gpu:2 hostname"
-autodetect_singlenode_command = "salloc -N 1 --gres=gpu:2 --begin=now --time=10"
-autodetect_multinode_command = "salloc -N 2 --gres=gpu:2 --begin=now --time=10"
-sinfo_command = "sinfo -Nl"
-regex=r'^node-name:.*$'
-nodepath = "/home/taccuser/slurm-automation/totalnodes.log"
-node_allocation_regex=r'^salloc:.*$'
+autodetect_singlenode_command="salloc -N 1 --gres=gpu:1 --begin=now --time=10"
 node_cancel_regex=r'.*?Granted.*$'
 x = PrettyTable()
 x.field_names = ["Slurm Test Scenarious","Result"]
@@ -22,28 +16,17 @@ def slurm_load_conf(var):
     return config["%s" %var]
 
 
-#def total_gpu():
-#    num_gpus = 0
-#    with open(gpu_logpath, "r") as file:
-#        for line in file:
-#            num_gpus += 1
-#    print("Number of GPUs:")
-#    print(num_gpus)
 
-#def slurm_verify_rocmcomponent():
-
-
-#def cmdline(command):
-#    process = Popen(args=command, stdout=PIPE, shell=True)
-#    return process.communicate()[0]
-
-def slurm_group_gpudetection():          
+def slurm_group_gpudetection():      
+    nodepath = slurm_load_conf("nodepath")
     with open(nodepath, "r") as file:
         for line in file:
             if "debug*" in line:                   
                print(line)
                str = line.split(" ")
                print(str[0])
+            else:
+                print("pass")
         
 
 def slurm_master_setup():
@@ -64,20 +47,6 @@ def slurm_node_setup():
   
 
 
-#def slurm_gpudetect():
-#    res = os.popen("%s" %srun_command).read()
-#    res_out = res.strip() #strip: removes spaces from output
-#    print(res_out)
-#    file1 = open("test-server.log","r")
-#    var = re.findall(r'node-name:(.*?)(?=\s*,\s*node-name:|$)', file1.read()) #identifying the nodename    
-#    str1 = ''.join(var)
-#    print(str1)
-#    if res_out == str1:       
-#        x.add_row(["Total No.of Gpu vs Slurm No.of Gpu detecting", "Pass"])
-#    else:
-#        x.add_row(["Total No.of Gpu vs Slurm No.of Gpu detecting", "Fail"])
-
-
 def slurm_gpu_detect():
     nodename = slurm_load_conf("N1hostname")
     res=os.popen("srun -w %s /opt/rocm/bin/rocm_agent_enumerator" %nodename).read()
@@ -92,19 +61,22 @@ def slurm_gpu_detect():
 
 
 def cancel_allocation():
-    with open("/home/taccuser/slurm-automation/allocation.log", "r") as file:
+    with open("/home/taccuser/slurm-automation/allocation.log", "r") as file:        
+    #with open(slurm_load_conf("allocation_log"), "r") as file:
         for line in file:
             for match in re.finditer(node_cancel_regex, line, re.S):
+            #for match in re.finditer(slurm_load_conf("node_cancel_regex"), line, re.S):
                 str = match.group().split(" ")
                 str.reverse()
-                print(str[0])
+                print(str[0])                
                 os.popen("scancel %s" %str[0])
 
 
 def validate_output():
     print("you have not entered")
-    try:
+    try:        
         with open("/home/taccuser/slurm-automation/allocation.log", "r") as file:
+        #with open(slurm_load_conf("node_cancel_regex"), "r") as file:        
             if "error" in file.read():           
                 x.add_row(["GPU autodetect single-node allocation", "Fail"])            
             else:
@@ -124,18 +96,18 @@ def slurm_node_allocation(autodetect_command):
         validate_output()
 
 
-
 def slurm_auto_allocation(n1hostname,n1autoallocation_command):
     n1host = slurm_load_conf(n1hostname)
     n1_autoallocation = slurm_load_conf(n1autoallocation_command)
-    #allocate  =  os.popen("%s" %n1_autoallocation).read()   
+    #allocate  =  os.popen("%s" %n1_autoallocation).read()
     allocate = subprocess.run("%s" %n1_autoallocation, stdout=subprocess.PIPE, timeout=5, shell=True)    
     var = allocate.stdout.decode()
     res = var.strip()
     if n1host == res:    
-        x.add_row(["Node allocation with --gpu", "Pass"])       
+        x.add_row(["slurm job  with --gpu flag", "Pass"])       
     else:        
-        x.add_row(["Node allocation with --gpu", "Fail"])        
+        x.add_row(["slurm job with --gpu flag", "Fail"])        
+
 
 def slurm_autonode_allocation():
     try:
@@ -164,15 +136,13 @@ def slurm_gpu_separation():
         pass
 
 
+#slurm_group_gpudetection()
 
 
 slurm_master_setup()
 slurm_node_setup()
-
-
 slurm_gpu_detect()
-
-#slurm_gpudetect()
+#slurm_node_allocation(slurm_load_conf("autodetect_singlenode_command"))
 slurm_node_allocation(autodetect_singlenode_command)
 cancel_allocation()
 slurm_autonode_allocation()
@@ -180,4 +150,4 @@ slurm_gpu_separation()
 print(x)
 
 
-#slurm_group_gpudetection()
+
