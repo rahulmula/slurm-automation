@@ -1,5 +1,6 @@
 {
-	"N1cards" : "2",
-	"N1hostname": "slurm-testnode2",
+	
+	"N1hostname": "slurm-node",
+	"N1cards" : "1",
 	"N1_autoallocation": "sudo srun -N 1 --gres=gpu:2 hostname"		
 }
