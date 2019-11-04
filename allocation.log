@@ -1,2 +1,5 @@
-salloc: Granted job allocation 278
-salloc: Job allocation 278 has been revoked.
+salloc: Pending job allocation 375
+salloc: job 375 queued and waiting for resources
+salloc: job 375 has been allocated resources
+salloc: Granted job allocation 375
+salloc: Job allocation 375 has been revoked.
