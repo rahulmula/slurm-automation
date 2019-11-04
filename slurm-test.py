@@ -96,14 +96,12 @@ def validate_output():
         #with open(slurm_load_conf("node_cancel_regex"), "r") as file:        
             if "error" in file.read():           
                 x.add_row(["Slurm node allocation with GPU auto detect", "Fail"])
-                result='Failed !'
-                #f = open("/home/taccuser/slurm.log","r")
-                #if f.mode == 'r':                                     
+                result='Failed !'                                                                    
                 f = open('/home/taccuser/slurm-automation/allocation.log', 'r')
                 contents = f.read()
                 print(contents)
                 logfile.write('\n\n Encountered Error:\n' + contents )
-                #f.close()
+                f.close
             else:
                 x.add_row(["Slurm node allocation with GPU auto detect", "Pass"])
                 result='Successful !!'
